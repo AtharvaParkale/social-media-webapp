@@ -1,9 +1,13 @@
-import React from 'react'
+import { Box } from "@mui/material";
+import React from "react";
+import Navbar from "scenes/navbar";
 
 function HomePage() {
   return (
-    <div>homepage</div>
-  )
+    <Box>
+      <Navbar />
+    </Box>
+  );
 }
 
-export default HomePage
+export default HomePage;
