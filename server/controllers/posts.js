@@ -1,13 +1,12 @@
 import Post from "../models/Post.js";
 import User from "../models/User.js";
 
-//CREATE
-
+/* CREATE */
 export const createPost = async (req, res) => {
   try {
     const { userId, description, picturePath } = req.body;
-    const user = new User.findById(userId);
-    const userPost = new Post({
+    const user = await User.findById(userId);
+    const newPost = new Post({
       userId,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -18,41 +17,24 @@ export const createPost = async (req, res) => {
       likes: {},
       comments: [],
     });
-
     await newPost.save();
 
-    const post = await Post.find();
+    //Return all the posts after adding one post
+    const posts = await Post.find();
+    res.status(201).json(posts);
 
-    res.status(201).json({
-      message: "This is the list of all posts !",
-      data: {
-        post,
-      },
-    });
   } catch (err) {
-    res.status(409).json({
-      message: "There was an error while creating a post !",
-      error: err,
-    });
+    res.status(409).json({ message: err.message });
   }
 };
 
-//READ
+/* READ */
 export const getFeedPosts = async (req, res) => {
   try {
-    const post = await Post.find();
-
-    res.status(200).json({
-      message: "This is the list of all feed posts !",
-      data: {
-        post,
-      },
-    });
+    const posts = await Post.find();
+    res.status(200).json(posts);
   } catch (err) {
-    res.status(404).json({
-      message: "There was an error while getting all feed post !",
-      error: err,
-    });
+    res.status(404).json({ message: err.message });
   }
 };
 
@@ -60,28 +42,20 @@ export const getUserPosts = async (req, res) => {
   try {
     const { userId } = req.params;
     const post = await Post.find({ userId });
-
-    res.status(200).json({
-      message: "This is the list of all user post !",
-      data: {
-        post,
-      },
-    });
+    res.status(200).json(post);
   } catch (err) {
-    res.status(404).json({
-      message: "There was an error while getting all user post !",
-      error: err,
-    });
+    res.status(404).json({ message: err.message });
   }
 };
 
-//UPDATE
-
+/* UPDATE */
 export const likePost = async (req, res) => {
   try {
     const { id } = req.params;
     const { userId } = req.body;
     const post = await Post.findById(id);
+
+    //check in isliked if the userid exist, if it does remove it or else add it
     const isLiked = post.likes.get(userId);
 
     if (isLiked) {
@@ -89,23 +63,17 @@ export const likePost = async (req, res) => {
     } else {
       post.likes.set(userId, true);
     }
+    
 
+    //After updating return the posts
     const updatedPost = await Post.findByIdAndUpdate(
       id,
       { likes: post.likes },
       { new: true }
     );
 
-    res.status(200).json({
-      message: "Like or unlike is done  !",
-      data: {
-        updatedPost,
-      },
-    });
+    res.status(200).json(updatedPost);
   } catch (err) {
-    res.status(404).json({
-      message: "There was an error while liking a post !",
-      error: err,
-    });
+    res.status(404).json({ message: err.message });
   }
 };
