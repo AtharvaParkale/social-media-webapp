@@ -22,7 +22,6 @@ export const createPost = async (req, res) => {
     //Return all the posts after adding one post
     const posts = await Post.find();
     res.status(201).json(posts);
-
   } catch (err) {
     res.status(409).json({ message: err.message });
   }
@@ -63,7 +62,6 @@ export const likePost = async (req, res) => {
     } else {
       post.likes.set(userId, true);
     }
-    
 
     //After updating return the posts
     const updatedPost = await Post.findByIdAndUpdate(
